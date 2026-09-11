@@ -1,0 +1,2187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadence — Mon espace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F6F1;
+  --paper-2:#ECEFE7;
+  --white:#FFFFFF;
+  --ink:#14171A;
+  --ink-soft:#53584F;
+  --muted:#7B8178;
+  --teal:#1F4B44;
+  --teal-light:#2E6E5F;
+  --teal-pale:#E7EEEA;
+  --amber:#C08A2E;
+  --amber-pale:#F5EBD8;
+  --red:#AD5A3B;
+  --red-pale:#F3E4DC;
+  --green:#39735B;
+  --green-pale:#E6F0EA;
+  --line:#D9DBCE;
+  --serif:'Fraunces',serif;
+  --sans:'Inter',sans-serif;
+  --sidebar-width:250px;
+  --shadow-soft:0 20px 60px rgba(20,23,26,.055);
+  --shadow-hover:0 24px 70px rgba(20,23,26,.09);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  overflow-x:hidden;
+}
+button,input,textarea,select{font-family:var(--sans)}
+button{cursor:pointer}
+.hidden{display:none !important}
+
+/* =========================================================
+   LOADING
+========================================================= */
+#loadingScreen{
+  position:fixed;inset:0;z-index:999;
+  background:var(--paper);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+}
+.loading-logo{font-size:18px;font-weight:700;letter-spacing:.22em}
+.loading-line{
+  width:90px;height:2px;background:var(--line);margin-top:18px;overflow:hidden;
+}
+.loading-line span{
+  display:block;width:35%;height:100%;background:var(--teal);
+  animation:loading 1.2s infinite ease-in-out;
+}
+@keyframes loading{
+  0%{transform:translateX(-120%)}
+  50%{transform:translateX(180%)}
+  100%{transform:translateX(180%)}
+}
+
+/* =========================================================
+   AUTHENTIFICATION
+========================================================= */
+#authScreen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;
+}
+.auth-card{
+  width:100%;max-width:420px;background:var(--white);
+  border:1px solid var(--line);border-radius:20px;padding:38px;
+  box-shadow:var(--shadow-soft);
+}
+.auth-logo{font-weight:700;letter-spacing:.2em;font-size:15px;margin-bottom:45px}
+.auth-card h1{
+  font-family:var(--serif);font-size:36px;font-weight:500;
+  letter-spacing:-.025em;margin:0 0 10px;
+}
+.auth-card p{color:var(--muted);font-size:13px;line-height:1.6}
+.auth-field{margin-top:22px}
+.auth-field label{
+  display:block;font-size:10px;text-transform:uppercase;
+  letter-spacing:.12em;color:var(--muted);margin-bottom:7px;
+}
+.auth-field input{
+  width:100%;border:1px solid var(--line);background:var(--paper);
+  border-radius:9px;padding:13px 14px;outline:none;transition:.2s ease;
+}
+.auth-field input:focus{border-color:var(--teal);background:white}
+.auth-actions{display:flex;gap:9px;margin-top:22px}
+.auth-error{color:var(--red);font-size:12px;margin-top:15px;line-height:1.5}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+.btn{
+  border:0;border-radius:999px;background:var(--teal);color:white;
+  padding:12px 18px;font-size:11px;font-weight:600;
+  transition:transform .25s ease,background .25s ease,box-shadow .25s ease;
+}
+.btn:hover{
+  background:var(--teal-light);transform:translateY(-1px);
+  box-shadow:0 8px 20px rgba(31,75,68,.12);
+}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-secondary{
+  background:var(--paper);color:var(--teal);border:1px solid var(--line);
+}
+.btn-secondary:hover{background:white}
+.btn-ghost{background:transparent;color:var(--teal);border:1px solid var(--line)}
+.btn-small{padding:9px 13px;font-size:10px}
+
+/* =========================================================
+   APPLICATION
+========================================================= */
+#appScreen{min-height:100vh}
+.app-layout{min-height:100vh}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+.sidebar{
+  position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-width);
+  background:#F0F2EB;border-right:1px solid var(--line);
+  padding:31px 20px 24px;display:flex;flex-direction:column;z-index:100;
+  transition:transform .35s cubic-bezier(.22,.61,.36,1);
+}
+.brand{padding:0 10px;margin-bottom:65px}
+.brand-name{font-size:18px;font-weight:700;letter-spacing:.18em}
+.brand-sub{
+  color:var(--muted);font-size:9px;letter-spacing:.13em;
+  text-transform:uppercase;margin-top:7px;
+}
+.nav-label{
+  font-size:9px;text-transform:uppercase;letter-spacing:.16em;
+  color:#9A9F95;padding:0 12px;margin-bottom:9px;
+}
+.navigation{display:flex;flex-direction:column;gap:5px}
+.nav-item{
+  position:relative;width:100%;display:flex;align-items:center;gap:12px;
+  border:0;background:transparent;color:var(--muted);border-radius:10px;
+  padding:13px 12px;text-align:left;font-size:12px;
+  transition:background .25s ease,color .25s ease,transform .25s ease;
+}
+.nav-item:hover{color:var(--teal);background:rgba(31,75,68,.055);transform:translateX(2px)}
+.nav-item.active{color:white;background:var(--teal)}
+.nav-number{font-size:9px;opacity:.5;min-width:17px}
+.sidebar-bottom{margin-top:auto}
+.sidebar-progress{
+  background:white;border:1px solid var(--line);border-radius:13px;padding:15px;
+}
+.sidebar-progress-top{display:flex;justify-content:space-between;align-items:center}
+.sidebar-progress-label{
+  color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.1em;
+}
+.sidebar-progress-value{font-family:var(--serif);font-size:22px}
+.progress-track{
+  height:4px;background:var(--paper);border-radius:999px;overflow:hidden;margin-top:11px;
+}
+.progress-fill{
+  width:0;height:100%;background:var(--teal);border-radius:999px;
+  transition:width 1s cubic-bezier(.22,.61,.36,1);
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+.main{margin-left:var(--sidebar-width);min-height:100vh;padding:0 55px 70px}
+
+/* =========================================================
+   TOP BAR
+========================================================= */
+.topbar{
+  height:88px;border-bottom:1px solid var(--line);
+  display:flex;justify-content:flex-end;align-items:center;
+}
+.topbar-right{display:flex;align-items:center;gap:20px}
+.topbar-date{color:var(--muted);font-size:10px}
+.profile{
+  position:relative;display:flex;align-items:center;gap:9px;
+  background:white;border:1px solid var(--line);border-radius:999px;
+  padding:6px 10px 6px 6px;cursor:pointer;
+}
+.profile-avatar{
+  width:29px;height:29px;border-radius:50%;display:flex;
+  justify-content:center;align-items:center;background:var(--teal);
+  color:white;font-size:10px;font-weight:600;
+}
+.profile-name{font-size:11px;font-weight:600}
+.profile-arrow{color:var(--muted);font-size:9px}
+.profile-menu{
+  position:absolute;right:0;top:48px;width:190px;padding:7px;
+  background:white;border:1px solid var(--line);border-radius:12px;
+  box-shadow:var(--shadow-soft);opacity:0;visibility:hidden;
+  transform:translateY(-5px);transition:.2s ease;z-index:300;
+}
+.profile.open .profile-menu{opacity:1;visibility:visible;transform:translateY(0)}
+.profile-menu button{
+  width:100%;background:transparent;border:0;padding:11px;
+  border-radius:7px;text-align:left;font-size:11px;
+}
+.profile-menu button:hover{background:var(--paper)}
+
+/* =========================================================
+   MOBILE HEADER
+========================================================= */
+.mobile-header{display:none}
+
+/* =========================================================
+   PAGES
+========================================================= */
+.page{
+  max-width:1120px;margin:0 auto;padding-top:70px;
+  animation:pageIn .55s ease both;
+}
+@keyframes pageIn{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.eyebrow{
+  font-size:9px;text-transform:uppercase;letter-spacing:.19em;
+  color:var(--teal);margin-bottom:15px;
+}
+.page-title{
+  font-family:var(--serif);font-weight:500;font-size:52px;
+  line-height:1.02;letter-spacing:-.04em;margin:0;
+}
+.page-subtitle{
+  max-width:590px;color:var(--muted);font-size:13px;
+  line-height:1.75;margin:17px 0 0;
+}
+.section-header{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:30px;margin-bottom:38px;
+}
+.section-header .page-subtitle{max-width:430px;margin:0}
+
+/* =========================================================
+   CARDS
+========================================================= */
+.card{
+  background:white;border:1px solid var(--line);border-radius:16px;padding:25px;
+  transition:transform .3s ease,box-shadow .3s ease;
+}
+.card:hover{transform:translateY(-2px);box-shadow:var(--shadow-soft)}
+.card-title{font-family:var(--serif);font-size:25px;font-weight:500;margin:0}
+.card-label{color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-size:9px}
+
+/* =========================================================
+   HOME
+========================================================= */
+.home-grid{
+  margin-top:52px;display:grid;
+  grid-template-columns:minmax(0,1.45fr) minmax(280px,.7fr);gap:20px;
+}
+.chat-card{
+  min-height:500px;background:var(--teal);color:white;border-radius:19px;
+  padding:31px;display:flex;flex-direction:column;
+  box-shadow:0 25px 70px rgba(31,75,68,.14);
+}
+.chat-card-title{font-family:var(--serif);font-size:34px;line-height:1;margin:0}
+.chat-card-intro{
+  color:rgba(255,255,255,.63);font-size:12px;line-height:1.6;
+  max-width:450px;margin:11px 0 0;
+}
+#chatLog{
+  flex:1;overflow-y:auto;padding:25px 2px;
+  display:flex;flex-direction:column;gap:11px;
+}
+.msg{
+  max-width:80%;padding:11px 14px;border-radius:12px;
+  font-size:12px;line-height:1.55;animation:messageIn .3s ease both;
+}
+@keyframes messageIn{
+  from{opacity:0;transform:translateY(5px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.msg.student{align-self:flex-end;color:var(--ink);background:white}
+.msg.coach{align-self:flex-start;background:rgba(255,255,255,.1);color:white}
+.chat-suggestions{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+.chat-suggestion{
+  border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);
+  color:rgba(255,255,255,.8);border-radius:999px;padding:7px 10px;font-size:9px;
+  transition:.2s ease;
+}
+.chat-suggestion:hover{background:rgba(255,255,255,.14);color:white}
+.chat-input{display:flex;gap:8px}
+.chat-input input{
+  flex:1;min-width:0;height:46px;padding:0 16px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.17);background:rgba(255,255,255,.08);
+  color:white;outline:none;
+}
+.chat-input input::placeholder{color:rgba(255,255,255,.48)}
+.chat-send{
+  width:46px;height:46px;border:0;border-radius:50%;
+  background:white;color:var(--teal);font-weight:700;transition:.25s ease;
+}
+.chat-send:hover{transform:scale(1.05)}
+.home-side{display:flex;flex-direction:column;gap:20px}
+.stat-card{
+  background:white;border:1px solid var(--line);border-radius:16px;padding:25px;
+}
+.stat-label{color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.11em}
+.stat-value{font-family:var(--serif);font-size:45px;line-height:1;margin:10px 0 6px}
+.stat-change{color:var(--green);font-size:10px}
+.next-session{flex:1;background:var(--paper-2);border-radius:16px;padding:25px}
+.next-session-title{font-family:var(--serif);font-size:26px;margin-top:11px}
+.next-session-text{color:var(--muted);font-size:11px;line-height:1.65;margin:9px 0 20px}
+.quick-stat{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.quick-stat-item{
+  padding:15px;background:white;border:1px solid var(--line);border-radius:12px;
+}
+.quick-stat-number{font-family:var(--serif);font-size:25px}
+.quick-stat-label{color:var(--muted);font-size:9px;margin-top:4px}
+
+/* =========================================================
+   PLANNING
+========================================================= */
+.planning-grid{
+  display:grid;grid-template-columns:minmax(0,1.4fr) minmax(270px,.65fr);gap:20px;
+}
+.timeline{margin-top:18px}
+.timeline-item{
+  display:grid;grid-template-columns:95px 1fr;gap:15px;
+  padding:19px 0;border-bottom:1px solid var(--line);
+}
+.timeline-item:last-child{border-bottom:0}
+.timeline-date{
+  color:var(--muted);font-size:9px;text-transform:uppercase;
+  letter-spacing:.1em;padding-top:3px;
+}
+.timeline-content{display:flex;justify-content:space-between;gap:15px}
+.timeline-title{font-family:var(--serif);font-size:19px}
+.timeline-sub{color:var(--muted);font-size:10px;margin-top:5px}
+.status{
+  height:max-content;border-radius:999px;padding:5px 9px;
+  background:var(--teal-pale);color:var(--teal);font-size:8px;
+}
+
+.ai-card{
+  background:var(--teal);color:white;border-radius:16px;padding:27px;
+}
+.ai-card .eyebrow{color:rgba(255,255,255,.58)}
+.ai-card h2{
+  font-family:var(--serif);font-size:32px;font-weight:500;line-height:1.1;margin:0;
+}
+.ai-card p{color:rgba(255,255,255,.66);font-size:11px;line-height:1.7}
+.ai-card .btn{background:white;color:var(--teal)}
+
+/* =========================================================
+   MASTERY
+========================================================= */
+.mastery-summary{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:20px;
+}
+.summary-card{
+  padding:21px;background:white;border:1px solid var(--line);border-radius:14px;
+}
+.summary-number{font-family:var(--serif);font-size:34px}
+.summary-label{
+  color:var(--muted);font-size:9px;text-transform:uppercase;
+  letter-spacing:.1em;margin-top:5px;
+}
+.mastery-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.subject{
+  padding:21px;background:white;border:1px solid var(--line);
+  border-radius:14px;transition:.3s ease;
+}
+.subject:hover{transform:translateY(-2px);box-shadow:var(--shadow-soft)}
+.subject-top{display:flex;justify-content:space-between;align-items:center}
+.subject-name{font-family:var(--serif);font-size:19px}
+.subject-percent{font-size:13px;font-weight:600}
+.subject-bar{
+  height:5px;background:var(--paper);border-radius:999px;overflow:hidden;margin-top:17px;
+}
+.subject-bar span{
+  display:block;height:100%;width:0;background:var(--teal);border-radius:999px;
+  transition:width 1s cubic-bezier(.22,.61,.36,1);
+}
+.subject-status{color:var(--muted);font-size:9px;margin-top:9px}
+
+/* =========================================================
+   QCM
+========================================================= */
+.filters{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:19px}
+.filter{
+  border:1px solid var(--line);background:white;color:var(--muted);
+  border-radius:999px;padding:8px 13px;font-size:9px;transition:.2s ease;
+}
+.filter:hover{border-color:var(--teal);color:var(--teal)}
+.filter.active{background:var(--teal);color:white;border-color:var(--teal)}
+.qcm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+.qcm-card{min-height:210px;display:flex;flex-direction:column;justify-content:space-between}
+.qcm-meta{display:flex;gap:6px;margin-bottom:13px}
+.qcm-tag{
+  padding:5px 8px;background:var(--paper);border-radius:999px;
+  color:var(--muted);font-size:8px;letter-spacing:.04em;
+}
+.qcm-title{font-family:var(--serif);font-size:22px;line-height:1.15}
+.qcm-info{color:var(--muted);font-size:10px;margin-top:8px}
+.qcm-description{color:var(--muted);font-size:10px;line-height:1.6;margin-top:10px}
+.qcm-actions{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:20px;
+}
+
+/* =========================================================
+   ERRORS
+========================================================= */
+.error-card{padding:0 25px}
+.error-list{display:flex;flex-direction:column}
+.error-item{
+  display:grid;grid-template-columns:minmax(0,1fr) auto auto;
+  gap:20px;align-items:center;padding:21px 0;border-bottom:1px solid var(--line);
+}
+.error-item:last-child{border-bottom:0}
+.error-subject{font-family:var(--serif);font-size:18px}
+.error-type{color:var(--muted);font-size:10px;line-height:1.5;margin-top:5px}
+.error-status{
+  font-size:8px;padding:5px 9px;border-radius:999px;
+  background:var(--red-pale);color:var(--red);
+}
+
+/* =========================================================
+   EMPTY
+========================================================= */
+.empty-state{padding:55px 20px;text-align:center;color:var(--muted)}
+.empty-state-icon{
+  width:42px;height:42px;border-radius:50%;background:var(--paper);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 15px;color:var(--teal);
+}
+.empty-state-title{font-family:var(--serif);color:var(--ink);font-size:21px;margin-bottom:6px}
+.empty-state-text{font-size:10px;line-height:1.6}
+
+/* =========================================================
+   TOAST
+========================================================= */
+#toastContainer{
+  position:fixed;right:22px;bottom:22px;z-index:1000;
+  display:flex;flex-direction:column;gap:8px;
+}
+.toast{
+  background:var(--ink);color:white;padding:12px 15px;border-radius:10px;
+  font-size:10px;box-shadow:var(--shadow-soft);animation:toastIn .3s ease both;
+  max-width:280px;
+}
+@keyframes toastIn{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* =========================================================
+   QCM MODAL — COMPLET & POLI
+========================================================= */
+.qcm-modal{
+  position:fixed;inset:0;z-index:800;
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.qcm-modal-overlay{
+  position:absolute;inset:0;background:rgba(20,23,26,.55);
+  backdrop-filter:blur(8px);
+}
+.qcm-modal-card{
+  position:relative;width:100%;max-width:640px;max-height:90vh;
+  background:var(--white);border-radius:22px;overflow:hidden;
+  box-shadow:0 30px 90px rgba(20,23,26,.18);
+  display:flex;flex-direction:column;
+  animation:modalIn .35s cubic-bezier(.22,.61,.36,1);
+}
+@keyframes modalIn{
+  from{opacity:0;transform:translateY(18px) scale(.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.qcm-modal-header{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  padding:28px 28px 0;gap:16px;
+}
+.qcm-modal-matiere{
+  font-size:9px;text-transform:uppercase;letter-spacing:.14em;
+  color:var(--teal);margin-bottom:6px;
+}
+.qcm-modal-header h2{
+  font-family:var(--serif);font-size:26px;font-weight:500;
+  margin:0;letter-spacing:-.02em;line-height:1.15;
+}
+.qcm-modal-close{
+  width:36px;height:36px;border:1px solid var(--line);border-radius:50%;
+  background:var(--paper);font-size:20px;line-height:1;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:.2s ease;
+}
+.qcm-modal-close:hover{background:var(--ink);color:white;border-color:var(--ink)}
+
+.qcm-progress{
+  height:4px;background:var(--paper);margin:22px 28px 0;border-radius:999px;overflow:hidden;
+}
+.qcm-progress-bar{
+  height:100%;width:0;background:var(--teal);border-radius:999px;
+  transition:width .4s cubic-bezier(.22,.61,.36,1);
+}
+.qcm-progress-text{
+  padding:10px 28px 0;font-size:10px;color:var(--muted);
+  letter-spacing:.04em;
+}
+
+#qcmQuestionContainer{padding:22px 28px 10px;overflow-y:auto;flex:1}
+.qcm-question-text{
+  font-family:var(--serif);font-size:20px;line-height:1.4;
+  letter-spacing:-.01em;margin-bottom:22px;
+}
+.qcm-answers{display:flex;flex-direction:column;gap:10px}
+.qcm-answer{
+  width:100%;text-align:left;padding:14px 16px;border-radius:12px;
+  border:1px solid var(--line);background:var(--paper);
+  font-size:13px;line-height:1.45;color:var(--ink);
+  transition:all .2s ease;position:relative;
+}
+.qcm-answer:hover:not(:disabled){
+  border-color:var(--teal);background:var(--teal-pale);transform:translateX(3px);
+}
+.qcm-answer:disabled{cursor:default}
+.qcm-answer.correct{
+  background:var(--green-pale);border-color:var(--green);color:var(--green);
+  font-weight:500;
+}
+.qcm-answer.incorrect{
+  background:var(--red-pale);border-color:var(--red);color:var(--red);
+}
+
+.qcm-feedback{
+  padding:0 28px;min-height:28px;font-size:12px;line-height:1.5;
+}
+.qcm-feedback strong{font-weight:600}
+
+.qcm-modal-footer{
+  padding:18px 28px 26px;display:flex;justify-content:flex-end;gap:10px;
+}
+
+/* Résultat QCM */
+.qcm-result{
+  text-align:center;padding:30px 10px 20px;
+}
+.qcm-result-score{
+  font-family:var(--serif);font-size:48px;line-height:1;margin-bottom:6px;
+}
+.qcm-result-percentage{
+  font-size:15px;color:var(--muted);margin-bottom:18px;
+}
+.qcm-result-message{
+  font-size:13px;line-height:1.6;color:var(--ink-soft);max-width:360px;margin:0 auto 28px;
+}
+.qcm-result-actions{
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+@media(max-width:900px){
+  :root{--sidebar-width:0px}
+  .sidebar{
+    transform:translateX(-100%);width:250px;
+    box-shadow:20px 0 60px rgba(0,0,0,.08);
+  }
+  .sidebar.open{transform:translateX(0)}
+  .mobile-header{
+    position:fixed;top:0;left:0;right:0;height:65px;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:0 18px;background:rgba(245,246,241,.92);
+    backdrop-filter:blur(16px);border-bottom:1px solid var(--line);z-index:90;
+  }
+  .mobile-menu{
+    width:38px;height:38px;border:1px solid var(--line);
+    background:white;border-radius:50%;font-size:16px;
+  }
+  .mobile-logo{font-size:14px;letter-spacing:.17em;font-weight:700}
+  .main{margin-left:0;padding:0 18px 50px}
+  .topbar{display:none}
+  .page{padding-top:105px}
+  .page-title{font-size:40px}
+  .section-header{display:block}
+  .section-header .page-subtitle{margin-top:15px}
+  .home-grid,.planning-grid{grid-template-columns:1fr}
+  .mastery-summary{grid-template-columns:1fr}
+  .mastery-grid,.qcm-grid{grid-template-columns:1fr}
+  .timeline-item{grid-template-columns:70px 1fr}
+  .error-item{grid-template-columns:1fr;gap:8px}
+  .error-item .btn{width:max-content}
+  .chat-card{min-height:570px}
+  .qcm-modal-card{max-height:94vh;border-radius:18px}
+  .qcm-modal-header{padding:22px 20px 0}
+  #qcmQuestionContainer{padding:18px 20px 8px}
+  .qcm-modal-footer{padding:14px 20px 22px}
+  .qcm-progress{margin:18px 20px 0}
+  .qcm-progress-text{padding:8px 20px 0}
+  .qcm-feedback{padding:0 20px}
+}
+
+@media(max-width:480px){
+  .auth-card{padding:28px 22px}
+  .auth-actions{flex-direction:column}
+  .page-title{font-size:36px}
+  .chat-card{padding:23px}
+  .chat-card-title{font-size:30px}
+  .qcm-question-text{font-size:18px}
+}
+</style>
+</head>
+<body>
+
+<!-- =========================================================
+     LOADING
+========================================================= -->
+<div id="loadingScreen">
+  <div class="loading-logo">CADENCE</div>
+  <div class="loading-line"><span></span></div>
+</div>
+
+<!-- =========================================================
+     AUTH SCREEN
+========================================================= -->
+<div id="authScreen" class="hidden">
+  <div class="auth-card">
+    <div class="auth-logo">CADENCE</div>
+    <div class="eyebrow">Espace étudiant</div>
+    <h1>Ton espace de travail.</h1>
+    <p>Retrouve ton coach, ton planning, tes matières, tes QCM et les erreurs à consolider.</p>
+
+    <div class="auth-field">
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email" placeholder="ton@email.com">
+    </div>
+    <div class="auth-field">
+      <label for="password">Mot de passe</label>
+      <input id="password" type="password" autocomplete="current-password" placeholder="••••••••">
+    </div>
+
+    <div class="auth-actions">
+      <button class="btn" onclick="signIn()">Se connecter</button>
+      <button class="btn btn-secondary" onclick="signUp()">Créer un compte</button>
+    </div>
+    <div id="authError" class="auth-error"></div>
+  </div>
+</div>
+
+<!-- =========================================================
+     APPLICATION
+========================================================= -->
+<div id="appScreen" class="hidden">
+  <header class="mobile-header">
+    <button class="mobile-menu" onclick="toggleSidebar()" aria-label="Ouvrir le menu">☰</button>
+    <div class="mobile-logo">CADENCE</div>
+    <div style="width:38px"></div>
+  </header>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="brand">
+      <div class="brand-name">CADENCE</div>
+      <div class="brand-sub">Médecine · Intelligence · Méthode</div>
+    </div>
+
+    <nav>
+      <div class="nav-label">Mon espace</div>
+      <div class="navigation">
+        <button class="nav-item active" data-page="home" onclick="showPage('home', this)">
+          <span class="nav-number">01</span> Accueil
+        </button>
+        <button class="nav-item" data-page="planning" onclick="showPage('planning', this)">
+          <span class="nav-number">02</span> Planning
+        </button>
+        <button class="nav-item" data-page="mastery" onclick="showPage('mastery', this)">
+          <span class="nav-number">03</span> Maîtrise matières
+        </button>
+        <button class="nav-item" data-page="qcm" onclick="showPage('qcm', this)">
+          <span class="nav-number">04</span> Banque de QCM
+        </button>
+        <button class="nav-item" data-page="errors" onclick="showPage('errors', this)">
+          <span class="nav-number">05</span> Erreurs à consolider
+        </button>
+      </div>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-progress">
+        <div class="sidebar-progress-top">
+          <div class="sidebar-progress-label">Progression globale</div>
+          <div id="sidebarProgressValue" class="sidebar-progress-value">—</div>
+        </div>
+        <div class="progress-track">
+          <div id="sidebarProgressFill" class="progress-fill"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-right">
+        <div id="topbarDate" class="topbar-date"></div>
+        <div id="profile" class="profile" onclick="toggleProfile()">
+          <div id="profileAvatar" class="profile-avatar">É</div>
+          <span id="profileName" class="profile-name">Étudiant</span>
+          <span class="profile-arrow">↓</span>
+          <div class="profile-menu">
+            <button onclick="logout()">Se déconnecter</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =====================================================
+         ACCUEIL
+    ====================================================== -->
+    <section id="page-home" class="page">
+      <div class="eyebrow">Ton espace personnel</div>
+      <h1 id="greeting" class="page-title">Bonjour 👋</h1>
+      <p class="page-subtitle">
+        Ton coach connaît ton parcours, tes résultats et tes erreurs.
+        Il t'aide à savoir quoi travailler, quand le travailler et pourquoi.
+      </p>
+
+      <div class="home-grid">
+        <div class="chat-card">
+          <h2 class="chat-card-title">Ton coach.</h2>
+          <p class="chat-card-intro">
+            Pose une question sur ton cours, demande une explication,
+            ou demande simplement à Cadence quoi travailler aujourd'hui.
+          </p>
+
+          <div id="chatLog">
+            <div class="msg coach">
+              Bonjour. Je suis ton coach Cadence.
+              Que veux-tu travailler aujourd'hui ?
+            </div>
+          </div>
+
+          <div class="chat-suggestions">
+            <button class="chat-suggestion" onclick="useSuggestion('Que dois-je travailler aujourd’hui ?')">
+              Que travailler aujourd'hui ?
+            </button>
+            <button class="chat-suggestion" onclick="useSuggestion('Explique-moi ma matière la plus faible.')">
+              Ma matière la plus faible
+            </button>
+            <button class="chat-suggestion" onclick="useSuggestion('Pourquoi est-ce que je fais ces erreurs ?')">
+              Mes erreurs
+            </button>
+          </div>
+
+          <div class="chat-input">
+            <input id="chatInput" type="text" placeholder="Pose une question à ton coach…" autocomplete="off">
+            <button id="chatSendButton" class="chat-send" onclick="sendMessage()" aria-label="Envoyer">→</button>
+          </div>
+        </div>
+
+        <div class="home-side">
+          <div class="stat-card">
+            <div class="stat-label">Maîtrise globale</div>
+            <div id="globalMastery" class="stat-value">—</div>
+            <div id="globalMasteryChange" class="stat-change">Analyse en cours</div>
+          </div>
+
+          <div class="next-session">
+            <div class="stat-label">Prochaine session</div>
+            <div id="nextSessionTitle" class="next-session-title">Analyse de ton parcours</div>
+            <div id="nextSessionText" class="next-session-text">
+              Cadence prépare ta prochaine session à partir de tes résultats.
+            </div>
+            <button class="btn" onclick="showPageByName('planning')">Voir mon planning</button>
+          </div>
+
+          <div class="quick-stat">
+            <div class="quick-stat-item">
+              <div id="qcmCount" class="quick-stat-number">—</div>
+              <div class="quick-stat-label">QCM réalisés</div>
+            </div>
+            <div class="quick-stat-item">
+              <div id="errorCount" class="quick-stat-number">—</div>
+              <div class="quick-stat-label">erreurs à revoir</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         PLANNING
+    ====================================================== -->
+    <section id="page-planning" class="page hidden">
+      <div class="section-header">
+        <div>
+          <div class="eyebrow">Intelligence adaptative</div>
+          <h1 class="page-title">Ton planning.</h1>
+        </div>
+        <p class="page-subtitle">
+          Cadence adapte tes révisions à ton niveau de maîtrise.
+          Plus une notion est fragile, plus elle revient rapidement.
+        </p>
+      </div>
+
+      <div class="planning-grid">
+        <div class="card">
+          <div class="card-label">Cette semaine</div>
+          <h2 class="card-title">Répétition espacée</h2>
+          <div id="planningList" class="timeline">
+            <div class="empty-state">
+              <div class="empty-state-icon">↻</div>
+              <div class="empty-state-title">Ton planning se construit</div>
+              <div class="empty-state-text">
+                Cadence utilisera tes résultats et tes erreurs
+                pour déterminer les prochaines révisions.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ai-card">
+          <div class="eyebrow">Recommandation IA</div>
+          <h2 id="planningRecommendation">Construisons ton rythme.</h2>
+          <p id="planningRecommendationText">
+            Le planning doit évoluer avec tes performances.
+            Les matières faibles et les erreurs récurrentes passent en priorité.
+          </p>
+          <button class="btn" onclick="askCoachAboutPlanning()">Demander au coach</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         MAÎTRISE
+    ====================================================== -->
+    <section id="page-mastery" class="page hidden">
+      <div class="section-header">
+        <div>
+          <div class="eyebrow">Analyse de progression</div>
+          <h1 class="page-title">Maîtrise.</h1>
+        </div>
+        <p class="page-subtitle">
+          Visualise tes forces, tes faiblesses et les matières
+          qui nécessitent une nouvelle répétition.
+        </p>
+      </div>
+
+      <div class="mastery-summary">
+        <div class="summary-card">
+          <div id="strongSubject" class="summary-number">—</div>
+          <div class="summary-label">Matière forte</div>
+        </div>
+        <div class="summary-card">
+          <div id="weakSubject" class="summary-number">—</div>
+          <div class="summary-label">Matière à renforcer</div>
+        </div>
+        <div class="summary-card">
+          <div id="averageMastery" class="summary-number">—</div>
+          <div class="summary-label">Réussite moyenne aux QCM</div>
+        </div>
+      </div>
+
+      <div id="masteryList" class="mastery-grid">
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-state-title">Pas encore de données.</div>
+          <div class="empty-state-text">Tes résultats apparaîtront ici après tes premiers QCM.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         QCM
+    ====================================================== -->
+    <section id="page-qcm" class="page hidden">
+      <div class="section-header">
+        <div>
+          <div class="eyebrow">Banque personnalisée</div>
+          <h1 class="page-title">Tes QCM.</h1>
+        </div>
+        <p class="page-subtitle">
+          Des séries organisées selon tes cours, ton niveau
+          et les notions que Cadence souhaite te faire retravailler.
+        </p>
+      </div>
+
+      <div class="filters">
+        <button class="filter active" data-filter="all" onclick="filterQCM('all', this)">Tous</button>
+        <button class="filter" data-filter="course" onclick="filterQCM('course', this)">Mes cours</button>
+        <button class="filter" data-filter="review" onclick="filterQCM('review', this)">À revoir</button>
+        <button class="filter" data-filter="difficult" onclick="filterQCM('difficult', this)">Difficiles</button>
+      </div>
+
+      <div id="qcmList" class="qcm-grid">
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-state-title">Ta banque de QCM arrive ici.</div>
+          <div class="empty-state-text">
+            Elle sera alimentée à partir de tes cours et de tes résultats.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         ERREURS
+    ====================================================== -->
+    <section id="page-errors" class="page hidden">
+      <div class="section-header">
+        <div>
+          <div class="eyebrow">Consolidation</div>
+          <h1 class="page-title">Tes erreurs.</h1>
+        </div>
+        <p class="page-subtitle">
+          Cadence identifie les erreurs récurrentes et les
+          réintroduit dans ton planning jusqu'à leur consolidation.
+        </p>
+      </div>
+
+      <div class="card error-card">
+        <div id="errorsList" class="error-list">
+          <div class="empty-state">
+            <div class="empty-state-icon">✓</div>
+            <div class="empty-state-title">Aucune erreur enregistrée.</div>
+            <div class="empty-state-text">Tes erreurs de QCM apparaîtront ici.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="toastContainer"></div>
+
+<!-- =========================================================
+     MODAL QCM
+========================================================= -->
+<div id="qcmModal" class="qcm-modal" style="display:none;">
+  <div class="qcm-modal-overlay" onclick="closeQCM()"></div>
+  <div class="qcm-modal-card">
+    <div class="qcm-modal-header">
+      <div>
+        <div id="qcmModalMatiere" class="qcm-modal-matiere"></div>
+        <h2 id="qcmModalTitle">QCM</h2>
+      </div>
+      <button class="qcm-modal-close" onclick="closeQCM()" type="button" aria-label="Fermer">×</button>
+    </div>
+
+    <div class="qcm-progress">
+      <div id="qcmProgressBar" class="qcm-progress-bar"></div>
+    </div>
+    <div class="qcm-progress-text">
+      Question <span id="qcmCurrentQuestion">1</span> / <span id="qcmTotalQuestions">10</span>
+    </div>
+
+    <div id="qcmQuestionContainer">
+      <div class="qcm-question-text" id="qcmQuestionText"></div>
+      <div id="qcmAnswers" class="qcm-answers"></div>
+    </div>
+
+    <div id="qcmFeedback" class="qcm-feedback"></div>
+
+    <div class="qcm-modal-footer">
+      <button id="qcmNextButton" class="btn btn-small" onclick="nextQCMQuestion()" type="button" disabled>
+        Question suivante
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   CONFIGURATION
+========================================================= */
+const SUPABASE_URL = 'https://teffuufkiowhcxueifiw.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_8tv8qS8WiM4Fs4d85H92PQ_UVuOsiI6';
+const API_BASE_URL = 'https://cadence-8m3p.onrender.com';
+
+/* =========================================================
+   ÉTAT
+========================================================= */
+let accessToken = null;
+let currentUserId = null;
+let currentStudentId = null;
+let appData = {
+  student: null,
+  mastery: [],
+  errors: [],
+  qcms: [],
+  planning: []
+};
+
+/* =========================================================
+   OUTILS
+========================================================= */
+function $(id){ return document.getElementById(id); }
+
+function escapeHTML(value){
+  if(value === null || value === undefined) return '';
+  return String(value)
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'","&#039;");
+}
+
+function showToast(message){
+  const container = $('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 4200);
+}
+
+function showAuthError(message){
+  $('authError').textContent = message;
+}
+
+/* =========================================================
+   DATE
+========================================================= */
+function updateDate(){
+  const date = new Date();
+  const formatted = new Intl.DateTimeFormat('fr-FR', {
+    weekday:'long', day:'numeric', month:'long'
+  }).format(date);
+  $('topbarDate').textContent = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+}
+
+/* =========================================================
+   SESSION
+========================================================= */
+function saveSession(){
+  if(accessToken) localStorage.setItem('cadence_access_token', accessToken);
+  if(currentUserId) localStorage.setItem('cadence_user_id', currentUserId);
+}
+
+function clearSession(){
+  localStorage.removeItem('cadence_access_token');
+  localStorage.removeItem('cadence_user_id');
+}
+
+/* =========================================================
+   SUPABASE HEADERS
+========================================================= */
+function supabaseHeaders(){
+  return {
+    'apikey': SUPABASE_ANON_KEY,
+    'Authorization': 'Bearer ' + accessToken,
+    'Content-Type': 'application/json'
+  };
+}
+
+/* =========================================================
+   API BACKEND
+========================================================= */
+async function apiFetch(endpoint, options = {}){
+  if(!accessToken){
+    throw new Error('Session absente. Recharge la page et reconnecte-toi.');
+  }
+
+  const headers = {
+    ...(options.headers || {}),
+    'Authorization': 'Bearer ' + accessToken,
+    'Content-Type': 'application/json'
+  };
+
+  let response;
+  try{
+    response = await fetch(API_BASE_URL + endpoint, { ...options, headers });
+  }catch(networkError){
+    throw new Error('Impossible de joindre le serveur Cadence. Vérifie ta connexion internet.');
+  }
+
+  if(!response.ok){
+    let errorText = 'Erreur API ' + response.status;
+    try{
+      const errorData = await response.json();
+      const mainError = errorData.error || errorData.message || errorText;
+      const details = errorData.details || errorData.detail || '';
+      errorText = details ? (mainError + ' — ' + details) : mainError;
+    }catch(parseError){
+      try{
+        const rawText = await response.text();
+        if(rawText) errorText = rawText;
+      }catch(e){}
+    }
+    console.error('CADENCE API ERROR', endpoint, response.status, errorText);
+    throw new Error(errorText);
+  }
+
+  return response;
+}
+
+/* =========================================================
+   INSCRIPTION
+========================================================= */
+async function signUp(){
+  const email = $('email').value.trim();
+  const password = $('password').value;
+
+  if(!email || !password){
+    showAuthError('Renseigne ton email et ton mot de passe.');
+    return;
+  }
+  if(password.length < 6){
+    showAuthError('Le mot de passe doit contenir au moins 6 caractères.');
+    return;
+  }
+
+  try{
+    showAuthError('');
+    const response = await fetch(SUPABASE_URL + '/auth/v1/signup', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey': SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+    if(!response.ok){
+      throw new Error(data.msg || data.error_description || data.error || 'Inscription impossible.');
+    }
+
+    if(data.access_token){
+      accessToken = data.access_token;
+      currentUserId = data.user.id;
+      saveSession();
+      await afterLogin(data.user);
+    }else{
+      showAuthError('Compte créé. Vérifie ta boîte mail si une confirmation est requise.');
+    }
+  }catch(error){
+    console.error('Signup error:', error);
+    showAuthError(error.message);
+  }
+}
+
+/* =========================================================
+   CONNEXION
+========================================================= */
+async function signIn(){
+  const email = $('email').value.trim();
+  const password = $('password').value;
+
+  if(!email || !password){
+    showAuthError('Renseigne ton email et ton mot de passe.');
+    return;
+  }
+
+  try{
+    showAuthError('');
+    const response = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey': SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+    if(!response.ok){
+      throw new Error(data.msg || data.error_description || data.error || 'Connexion impossible.');
+    }
+
+    accessToken = data.access_token;
+    currentUserId = data.user.id;
+    saveSession();
+    await afterLogin(data.user);
+  }catch(error){
+    console.error('Signin error:', error);
+    showAuthError(error.message);
+  }
+}
+
+/* =========================================================
+   RESTAURATION SESSION
+========================================================= */
+async function restoreSession(){
+  const savedToken = localStorage.getItem('cadence_access_token');
+  const savedUserId = localStorage.getItem('cadence_user_id');
+
+  if(!savedToken || !savedUserId){
+    showAuth();
+    return;
+  }
+
+  accessToken = savedToken;
+  currentUserId = savedUserId;
+
+  try{
+    const response = await fetch(SUPABASE_URL + '/auth/v1/user', {
+      headers:{
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + accessToken
+      }
+    });
+
+    if(!response.ok) throw new Error('Session expirée');
+
+    const user = await response.json();
+    currentUserId = user.id;
+    await afterLogin(user);
+  }catch(error){
+    console.error('Restore session:', error);
+    clearSession();
+    accessToken = null;
+    currentUserId = null;
+    showAuth();
+  }
+}
+
+/* =========================================================
+   APRÈS CONNEXION
+========================================================= */
+async function afterLogin(user){
+  try{
+    const headers = supabaseHeaders();
+    const query = SUPABASE_URL + '/rest/v1/students?auth_id=eq.' + encodeURIComponent(user.id) + '&select=*';
+
+    let response = await fetch(query, { headers });
+    if(!response.ok){
+      let details = '';
+      try{
+        const data = await response.json();
+        details = data.message || data.error || '';
+      }catch(e){}
+      throw new Error('Impossible de récupérer ton profil étudiant.' + (details ? ' — ' + details : ''));
+    }
+
+    const students = await response.json();
+    let student = students && students[0];
+
+    if(!student){
+      response = await fetch(SUPABASE_URL + '/rest/v1/students', {
+        method:'POST',
+        headers:{ ...headers, 'Prefer':'return=representation' },
+        body: JSON.stringify({
+          auth_id: user.id,
+          email: user.email,
+          prenom: user.email.split('@')[0]
+        })
+      });
+
+      if(!response.ok){
+        let details = '';
+        try{
+          const data = await response.json();
+          details = data.message || data.error || data.hint || '';
+        }catch(e){}
+        throw new Error('Impossible de créer ton profil étudiant.' + (details ? ' — ' + details : ''));
+      }
+
+      const created = await response.json();
+      student = created && created[0];
+    }
+
+    if(!student) throw new Error('Profil étudiant introuvable après connexion.');
+
+    currentStudentId = student.id;
+    appData.student = student;
+
+    showApplication();
+    await Promise.all([loadProfile(), loadQcms()]);
+  }catch(error){
+    console.error('afterLogin:', error);
+    showAuthError(error.message);
+    showAuth();
+  }
+}
+
+/* =========================================================
+   AFFICHAGE
+========================================================= */
+function showAuth(){
+  $('loadingScreen').classList.add('hidden');
+  $('appScreen').classList.add('hidden');
+  $('authScreen').classList.remove('hidden');
+}
+
+function showApplication(){
+  $('loadingScreen').classList.add('hidden');
+  $('authScreen').classList.add('hidden');
+  $('appScreen').classList.remove('hidden');
+
+  const student = appData.student;
+  const firstName = student?.prenom || 'étudiant';
+
+  $('greeting').textContent = 'Bonjour ' + firstName + ' 👋';
+  $('profileName').textContent = firstName;
+  $('profileAvatar').textContent = firstName.charAt(0).toUpperCase();
+  updateDate();
+}
+
+/* =========================================================
+   CHARGEMENT PROFIL
+========================================================= */
+async function loadProfile(){
+  try{
+    const response = await apiFetch('/api/profile/' + encodeURIComponent(currentStudentId));
+    const data = await response.json();
+
+    appData.student = data.student || appData.student;
+    appData.mastery = Array.isArray(data.mastery) ? data.mastery : [];
+    appData.errors = Array.isArray(data.errors) ? data.errors : [];
+    appData.planning = Array.isArray(data.planning)
+      ? data.planning
+      : (Array.isArray(data.schedule) ? data.schedule : []);
+
+    renderEverything();
+  }catch(error){
+    console.error('loadProfile:', error);
+    renderEverything();
+    showToast('Profil : ' + error.message);
+  }
+}
+
+/* =========================================================
+   CHARGEMENT QCM
+========================================================= */
+async function loadQcms(){
+  if(!currentStudentId) return;
+  try{
+    const response = await apiFetch('/api/qcms/' + currentStudentId);
+    const data = await response.json();
+    appData.qcms = data.qcms || [];
+    renderQCM();
+  }catch(error){
+    console.error('Erreur chargement QCM :', error);
+  }
+}
+
+/* =========================================================
+   RENDU GLOBAL
+========================================================= */
+function renderEverything(){
+  renderSidebarProgress();
+  renderHome();
+  renderMastery();
+  renderErrors();
+  renderPlanning();
+  renderQCM();
+}
+
+/* =========================================================
+   MAÎTRISE GLOBALE
+========================================================= */
+function getGlobalMastery(){
+  if(!appData.mastery.length) return null;
+  const values = appData.mastery
+    .map(item => Number(item.taux ?? item.score ?? item.pourcentage ?? 0))
+    .filter(value => Number.isFinite(value));
+  if(!values.length) return null;
+  return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+function renderSidebarProgress(){
+  const value = getGlobalMastery();
+  if(value === null){
+    $('sidebarProgressValue').textContent = '—';
+    $('sidebarProgressFill').style.width = '0%';
+    return;
+  }
+  $('sidebarProgressValue').textContent = value + '%';
+  requestAnimationFrame(() => {
+    $('sidebarProgressFill').style.width = Math.max(0, Math.min(100, value)) + '%';
+  });
+}
+
+/* =========================================================
+   HOME
+========================================================= */
+function renderHome(){
+  const global = getGlobalMastery();
+  if(global !== null){
+    $('globalMastery').textContent = global + '%';
+    $('globalMasteryChange').textContent = 'Basé sur tes résultats aux QCM.';
+  }else{
+    $('globalMastery').textContent = '—';
+    $('globalMasteryChange').textContent = 'Commence tes premiers QCM.';
+  }
+
+  $('errorCount').textContent = appData.errors.length;
+
+  const qcmCount = appData.student?.qcm_realises
+    ?? appData.student?.qcm_count
+    ?? appData.student?.nombre_qcm
+    ?? appData.qcms.length;
+  $('qcmCount').textContent = qcmCount || 0;
+
+  if(appData.planning.length){
+    const next = appData.planning[0];
+    $('nextSessionTitle').textContent = next.matiere || next.title || next.cours || 'Révision recommandée';
+    $('nextSessionText').textContent = next.description || next.type || 'Une session de révision est recommandée aujourd’hui.';
+  }else{
+    const weak = getWeakSubject();
+    if(weak){
+      $('nextSessionTitle').textContent = weak.matiere || 'Matière à renforcer';
+      $('nextSessionText').textContent = 'Cadence recommande de consolider cette matière à partir de tes résultats.';
+    }else{
+      $('nextSessionTitle').textContent = 'Ton prochain objectif';
+      $('nextSessionText').textContent = 'Commence un QCM pour permettre à Cadence de construire ton planning.';
+    }
+  }
+}
+
+/* =========================================================
+   MATIÈRES
+========================================================= */
+function getSortedMastery(){
+  return [...appData.mastery].sort((a,b) =>
+    Number(a.taux ?? a.score ?? 0) - Number(b.taux ?? b.score ?? 0)
+  );
+}
+
+function getWeakSubject(){
+  const sorted = getSortedMastery();
+  return sorted[0] || null;
+}
+
+function getStrongSubject(){
+  const sorted = getSortedMastery();
+  return sorted[sorted.length - 1] || null;
+}
+
+/* =========================================================
+   MASTERY
+========================================================= */
+function renderMastery(){
+  const container = $('masteryList');
+
+  if(!appData.mastery.length){
+    container.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-state-title">Pas encore de données.</div>
+        <div class="empty-state-text">Tes matières apparaîtront ici après tes premiers QCM.</div>
+      </div>`;
+    $('strongSubject').textContent = '—';
+    $('weakSubject').textContent = '—';
+    $('averageMastery').textContent = '—';
+    return;
+  }
+
+  const sorted = getSortedMastery();
+  const weak = sorted[0];
+  const strong = sorted[sorted.length - 1];
+  const average = getGlobalMastery();
+
+  $('strongSubject').textContent = strong?.matiere || strong?.nom || '—';
+  $('weakSubject').textContent = weak?.matiere || weak?.nom || '—';
+  $('averageMastery').textContent = average !== null ? average + '%' : '—';
+
+  container.innerHTML = sorted.slice().reverse().map(item => {
+    const name = item.matiere || item.nom || item.subject || 'Matière';
+    const value = Number(item.taux ?? item.score ?? item.pourcentage ?? 0);
+    let status = 'À renforcer';
+    if(value >= 80) status = 'Matière forte';
+    else if(value >= 65) status = 'Bonne maîtrise';
+    else if(value >= 50) status = 'Consolidation recommandée';
+    else status = 'Priorité élevée';
+
+    return `
+      <div class="subject">
+        <div class="subject-top">
+          <div class="subject-name">${escapeHTML(name)}</div>
+          <div class="subject-percent">${value}%</div>
+        </div>
+        <div class="subject-bar">
+          <span data-width="${Math.max(0, Math.min(100, value))}"></span>
+        </div>
+        <div class="subject-status">${status}</div>
+      </div>`;
+  }).join('');
+
+  setTimeout(() => {
+    container.querySelectorAll('.subject-bar span').forEach(bar => {
+      bar.style.width = bar.dataset.width + '%';
+    });
+  }, 80);
+}
+
+/* =========================================================
+   ERREURS
+========================================================= */
+function renderErrors(){
+  const container = $('errorsList');
+
+  if(!appData.errors.length){
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">✓</div>
+        <div class="empty-state-title">Aucune erreur enregistrée.</div>
+        <div class="empty-state-text">Tes erreurs de QCM apparaîtront automatiquement ici.</div>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = appData.errors.map((error, index) => {
+    const subject = error.matiere || error.subject || error.cours || 'Matière';
+    const type = error.type_erreur || error.type || error.description || 'Erreur à consolider';
+    const status = error.statut || error.status || 'À revoir';
+
+    return `
+      <div class="error-item">
+        <div>
+          <div class="error-subject">${escapeHTML(subject)}</div>
+          <div class="error-type">${escapeHTML(type)}</div>
+        </div>
+        <span class="error-status">${escapeHTML(status)}</span>
+        <button class="btn btn-small" onclick="workOnError(${index})">Travailler</button>
+      </div>`;
+  }).join('');
+}
+
+/* =========================================================
+   PLANNING
+========================================================= */
+function renderPlanning(){
+  const container = $('planningList');
+
+  if(appData.planning.length){
+    container.innerHTML = appData.planning.map(item => {
+      const title = item.matiere || item.title || item.cours || 'Révision';
+      const subtitle = item.description || item.type || item.duree || 'Révision espacée';
+      const date = item.date || item.jour || item.scheduled_at || 'À venir';
+      const status = item.statut || item.status || 'Prévu';
+
+      return `
+        <div class="timeline-item">
+          <div class="timeline-date">${escapeHTML(formatPlanningDate(date))}</div>
+          <div class="timeline-content">
+            <div>
+              <div class="timeline-title">${escapeHTML(title)}</div>
+              <div class="timeline-sub">${escapeHTML(subtitle)}</div>
+            </div>
+            <span class="status">${escapeHTML(status)}</span>
+          </div>
+        </div>`;
+    }).join('');
+    updatePlanningRecommendation();
+    return;
+  }
+
+  const sorted = getSortedMastery();
+  if(!sorted.length){
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">↻</div>
+        <div class="empty-state-title">Ton planning va se construire.</div>
+        <div class="empty-state-text">
+          Cadence a besoin de tes premiers résultats pour déterminer ton rythme de répétition.
+        </div>
+      </div>`;
+    return;
+  }
+
+  const generated = buildFallbackSpacedPlan(sorted);
+  container.innerHTML = generated.map(item => `
+    <div class="timeline-item">
+      <div class="timeline-date">${escapeHTML(item.date)}</div>
+      <div class="timeline-content">
+        <div>
+          <div class="timeline-title">${escapeHTML(item.matiere)}</div>
+          <div class="timeline-sub">${escapeHTML(item.type)}</div>
+        </div>
+        <span class="status">${escapeHTML(item.status)}</span>
+      </div>
+    </div>`).join('');
+
+  $('planningRecommendation').textContent = 'Ton rythme s’adapte à toi.';
+  $('planningRecommendationText').textContent =
+    'Les matières les plus faibles reviennent plus rapidement. ' +
+    'À mesure que tes performances progressent, l’intervalle entre les répétitions augmente.';
+}
+
+function buildFallbackSpacedPlan(sorted){
+  const today = new Date();
+  const plan = [];
+
+  sorted.slice(0, 5).forEach((item, index) => {
+    const value = Number(item.taux ?? item.score ?? 0);
+    let interval;
+    if(value < 50) interval = 1;
+    else if(value < 65) interval = 3;
+    else if(value < 80) interval = 7;
+    else interval = 14;
+
+    const date = new Date(today);
+    date.setDate(today.getDate() + interval);
+
+    plan.push({
+      date: interval === 0 ? "Aujourd'hui" : formatShortDate(date),
+      matiere: item.matiere || item.nom || 'Matière',
+      type: value < 65 ? 'Consolidation · QCM ciblés' : 'Révision espacée · QCM',
+      status: interval <= 1 ? 'Prioritaire' : 'Prévu'
+    });
+  });
+
+  return plan;
+}
+
+function formatShortDate(date){
+  return new Intl.DateTimeFormat('fr-FR', {
+    weekday:'short', day:'numeric', month:'short'
+  }).format(date);
+}
+
+function formatPlanningDate(value){
+  if(!value) return 'À venir';
+  if(value === "Aujourd'hui" || value === 'today') return "Aujourd'hui";
+  const date = new Date(value);
+  if(!Number.isNaN(date.getTime())) return formatShortDate(date);
+  return String(value);
+}
+
+function updatePlanningRecommendation(){
+  if(!appData.planning.length) return;
+  const first = appData.planning[0];
+  $('planningRecommendation').textContent = first.matiere || first.title || 'Prochaine révision';
+  $('planningRecommendationText').textContent =
+    first.description || 'Cadence recommande cette session en fonction de ton parcours.';
+}
+
+/* =========================================================
+   QCM LISTE
+========================================================= */
+let currentQCMFilter = 'all';
+
+function renderQCM(){
+  const container = $('qcmList');
+
+  if(!appData.qcms.length){
+    container.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-state-title">Ta banque de QCM arrive ici.</div>
+        <div class="empty-state-text">
+          Le backend pourra alimenter cette section avec les QCM générés à partir de tes cours.
+        </div>
+      </div>`;
+    return;
+  }
+
+  const filtered = appData.qcms.filter(qcm => {
+    if(currentQCMFilter === 'all') return true;
+    if(currentQCMFilter === 'course'){
+      return qcm.from_course || qcm.source === 'course' || qcm.cours;
+    }
+    if(currentQCMFilter === 'review'){
+      return qcm.review || qcm.a_revoir || qcm.prioritaire;
+    }
+    if(currentQCMFilter === 'difficult'){
+      const difficulty = String(qcm.difficulte || qcm.difficulty || '').toLowerCase();
+      return difficulty.includes('diffic');
+    }
+    return true;
+  });
+
+  if(!filtered.length){
+    container.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-state-title">Aucun QCM dans cette catégorie.</div>
+        <div class="empty-state-text">Essaie un autre filtre.</div>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map((qcm) => {
+    const originalIndex = appData.qcms.indexOf(qcm);
+    return renderQCMCard(qcm, originalIndex);
+  }).join('');
+}
+
+function renderQCMCard(qcm, index){
+  const subject = qcm.matiere || qcm.subject || qcm.cours_matiere || 'Médecine';
+  const title = qcm.titre || qcm.title || qcm.nom || qcm.cours || 'Session de QCM';
+  const difficulty = qcm.difficulte || qcm.difficulty || 'Standard';
+  const questions = qcm.nombre_questions || qcm.question_count || qcm.questions_count || qcm.questions?.length || '—';
+  const duration = qcm.duree || qcm.duration || '—';
+  const description = qcm.description || 'Session personnalisée selon ton parcours.';
+
+  return `
+    <div class="card qcm-card">
+      <div>
+        <div class="qcm-meta">
+          <span class="qcm-tag">${escapeHTML(subject)}</span>
+          <span class="qcm-tag">${escapeHTML(difficulty)}</span>
+        </div>
+        <div class="qcm-title">${escapeHTML(title)}</div>
+        <div class="qcm-info">${escapeHTML(String(questions))} questions · ${escapeHTML(String(duration))}</div>
+        <div class="qcm-description">${escapeHTML(description)}</div>
+      </div>
+      <div class="qcm-actions">
+        <button class="btn btn-secondary btn-small" onclick="importQCM(${index})">Importer</button>
+        <button class="btn btn-small" onclick="startQCM(${index})">Commencer</button>
+      </div>
+    </div>`;
+}
+
+function filterQCM(filter, button){
+  currentQCMFilter = filter;
+  document.querySelectorAll('.filter').forEach(item => item.classList.remove('active'));
+  button.classList.add('active');
+  renderQCM();
+}
+
+/* =========================================================
+   IMPORT QCM
+========================================================= */
+async function importQCM(index){
+  const qcm = appData.qcms[index];
+  if(!qcm) return;
+
+  if(qcm.id){
+    try{
+      const response = await apiFetch('/api/qcm/' + encodeURIComponent(qcm.id) + '/import', { method:'POST' });
+      const data = await response.json();
+      if(data.success){
+        showToast('QCM importé dans ton logiciel.');
+        return;
+      }
+    }catch(error){
+      console.info('Import API non disponible :', error.message);
+    }
+  }
+
+  try{
+    const json = JSON.stringify(qcm, null, 2);
+    const blob = new Blob([json], { type:'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = slugify(qcm.titre || qcm.title || 'qcm-cadence') + '.json';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    showToast('QCM préparé pour l’import.');
+  }catch(error){
+    console.error(error);
+    showToast('Impossible de préparer ce QCM.');
+  }
+}
+
+function slugify(value){
+  return String(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/* =========================================================
+   DÉMARRER / JOUER UN QCM
+========================================================= */
+let currentQCM = null;
+let currentQCMQuestionIndex = 0;
+let currentQCMScore = 0;
+let currentQCMAnswered = false;
+let currentQCMWrongAnswers = [];
+
+function startQCM(index){
+  const qcm = appData.qcms[index];
+  if(!qcm) return;
+
+  if(!Array.isArray(qcm.questions) || !qcm.questions.length){
+    showToast('Ce QCM ne contient aucune question.');
+    return;
+  }
+
+  currentQCM = qcm;
+  currentQCMQuestionIndex = 0;
+  currentQCMScore = 0;
+  currentQCMAnswered = false;
+  currentQCMWrongAnswers = [];
+
+  const modal = $('qcmModal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  $('qcmModalMatiere').textContent = qcm.matiere || 'Médecine';
+  $('qcmModalTitle').textContent = qcm.titre || qcm.title || 'QCM';
+
+  // Restaurer la structure si on avait affiché un résultat
+  resetQCMQuestionStructure();
+  renderCurrentQCMQuestion();
+}
+
+function resetQCMQuestionStructure(){
+  const container = $('qcmQuestionContainer');
+  container.innerHTML = `
+    <div class="qcm-question-text" id="qcmQuestionText"></div>
+    <div id="qcmAnswers" class="qcm-answers"></div>`;
+  $('qcmFeedback').innerHTML = '';
+  $('qcmNextButton').style.display = '';
+  $('qcmNextButton').disabled = true;
+}
+
+function renderCurrentQCMQuestion(){
+  if(!currentQCM) return;
+
+  const questions = currentQCM.questions;
+  const question = questions[currentQCMQuestionIndex];
+
+  if(!question){
+    finishQCM();
+    return;
+  }
+
+  currentQCMAnswered = false;
+
+  $('qcmCurrentQuestion').textContent = currentQCMQuestionIndex + 1;
+  $('qcmTotalQuestions').textContent = questions.length;
+
+  const progress = ((currentQCMQuestionIndex + 1) / questions.length) * 100;
+  $('qcmProgressBar').style.width = progress + '%';
+
+  $('qcmQuestionText').textContent =
+    question.question || question.text || question.enonce || 'Question';
+
+  $('qcmFeedback').innerHTML = '';
+
+  const answersContainer = $('qcmAnswers');
+  answersContainer.innerHTML = '';
+
+  const answers = question.options || question.choices || question.propositions || [];
+
+  answers.forEach((answer, answerIndex) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'qcm-answer';
+    button.textContent = typeof answer === 'string'
+      ? answer
+      : (answer.text || answer.label || answer.answer || '');
+    button.onclick = () => answerQCMQuestion(answerIndex, answer);
+    answersContainer.appendChild(button);
+  });
+
+  const nextButton = $('qcmNextButton');
+  nextButton.disabled = true;
+  nextButton.textContent = currentQCMQuestionIndex === questions.length - 1
+    ? 'Voir mon résultat'
+    : 'Question suivante';
+}
+
+function answerQCMQuestion(answerIndex, answer){
+  if(currentQCMAnswered) return;
+  currentQCMAnswered = true;
+
+  const question = currentQCM.questions[currentQCMQuestionIndex];
+  const correctAnswer = question.correct_answer
+    ?? question.correctAnswer
+    ?? question.answer
+    ?? question.correct
+    ?? question.bonne_reponse;
+
+  const isCorrect =
+    String(answerIndex) === String(correctAnswer) ||
+    String(answer) === String(correctAnswer);
+
+  const buttons = document.querySelectorAll('#qcmAnswers .qcm-answer');
+  buttons.forEach((button, index) => {
+    button.disabled = true;
+    if(index === answerIndex){
+      button.classList.add(isCorrect ? 'correct' : 'incorrect');
+    }
+    if(!isCorrect && String(index) === String(correctAnswer)){
+      button.classList.add('correct');
+    }
+  });
+
+  if(isCorrect){
+    currentQCMScore++;
+    $('qcmFeedback').innerHTML = '<strong>Bonne réponse.</strong> Continue comme ça.';
+  }else{
+    currentQCMWrongAnswers.push({
+      question: question.question || question.text || question.enonce,
+      userAnswer: typeof answer === 'string' ? answer : (answer.text || answer.label || ''),
+      correctIndex: correctAnswer
+    });
+    $('qcmFeedback').innerHTML = '<strong>Pas tout à fait.</strong> La bonne réponse est indiquée en vert.';
+  }
+
+  $('qcmNextButton').disabled = false;
+}
+
+function nextQCMQuestion(){
+  if(!currentQCMAnswered) return;
+  currentQCMQuestionIndex++;
+
+  if(currentQCMQuestionIndex >= currentQCM.questions.length){
+    finishQCM();
+    return;
+  }
+  renderCurrentQCMQuestion();
+}
+
+function finishQCM(){
+  if(!currentQCM) return;
+
+  const total = currentQCM.questions.length;
+  const percentage = Math.round((currentQCMScore / total) * 100);
+
+  let message = '';
+  if(percentage >= 80) message = 'Très bon travail. Tu maîtrises bien cette partie.';
+  else if(percentage >= 60) message = 'Bonne base. Quelques points sont encore à consolider.';
+  else message = 'Cette session révèle plusieurs points à retravailler.';
+
+  const container = $('qcmQuestionContainer');
+  container.innerHTML = `
+    <div class="qcm-result">
+      <div class="qcm-result-score">${currentQCMScore}/${total}</div>
+      <div class="qcm-result-percentage">${percentage}%</div>
+      <div class="qcm-result-message">${message}</div>
+      <div class="qcm-result-actions">
+        <button class="btn btn-secondary btn-small" onclick="restartCurrentQCM()">Recommencer</button>
+        <button class="btn btn-small" onclick="closeQCM()">Retour à la banque</button>
+        ${currentQCMWrongAnswers.length ? `
+          <button class="btn btn-ghost btn-small" onclick="sendErrorsToCoach()">
+            Envoyer mes erreurs au coach
+          </button>` : ''}
+      </div>
+    </div>`;
+
+  $('qcmFeedback').innerHTML = '';
+  $('qcmNextButton').style.display = 'none';
+  $('qcmProgressBar').style.width = '100%';
+}
+
+function restartCurrentQCM(){
+  if(!currentQCM) return;
+  currentQCMQuestionIndex = 0;
+  currentQCMScore = 0;
+  currentQCMAnswered = false;
+  currentQCMWrongAnswers = [];
+  resetQCMQuestionStructure();
+  renderCurrentQCMQuestion();
+}
+
+function sendErrorsToCoach(){
+  if(!currentQCMWrongAnswers.length) return;
+
+  closeQCM();
+  showPageByName('home');
+
+  const summary = currentQCMWrongAnswers
+    .map((item, i) => `${i+1}. ${item.question}`)
+    .join('\n');
+
+  const message =
+    `J’ai terminé un QCM et j’ai fait ${currentQCMWrongAnswers.length} erreur(s). ` +
+    `Voici les questions que j’ai ratées :\n${summary}\n\n` +
+    `Peux-tu m’expliquer ces notions et me proposer un mini-plan de révision ?`;
+
+  $('chatInput').value = message;
+  sendMessage();
+}
+
+function closeQCM(){
+  const modal = $('qcmModal');
+  if(!modal) return;
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+  currentQCM = null;
+  currentQCMQuestionIndex = 0;
+  currentQCMScore = 0;
+  currentQCMAnswered = false;
+  currentQCMWrongAnswers = [];
+}
+
+/* =========================================================
+   ERREUR → COACH
+========================================================= */
+function workOnError(index){
+  const error = appData.errors[index];
+  if(!error) return;
+
+  const subject = error.matiere || error.subject || error.cours || 'cette matière';
+  const type = error.type_erreur || error.type || error.description || 'cette erreur';
+
+  showPageByName('home');
+  const message =
+    'Je veux travailler mon erreur en ' + subject + '. ' +
+    'L’erreur concerne : ' + type + '. Explique-moi la notion puis teste-moi.';
+  $('chatInput').value = message;
+  sendMessage();
+}
+
+/* =========================================================
+   CHAT
+========================================================= */
+function addBubble(role, text){
+  const log = $('chatLog');
+  const bubble = document.createElement('div');
+  bubble.className = 'msg ' + role;
+  bubble.textContent = text;
+  log.appendChild(bubble);
+  log.scrollTop = log.scrollHeight;
+}
+
+function useSuggestion(message){
+  $('chatInput').value = message;
+  sendMessage();
+}
+
+async function sendMessage(){
+  const input = $('chatInput');
+  const button = $('chatSendButton');
+  const message = input.value.trim();
+  if(!message) return;
+
+  if(!accessToken){
+    showToast('Ta session n’est plus active. Recharge la page.');
+    return;
+  }
+  if(!currentStudentId){
+    showToast('Ton profil étudiant n’est pas encore chargé.');
+    return;
+  }
+
+  addBubble('student', message);
+  input.value = '';
+  button.disabled = true;
+
+  const thinking = document.createElement('div');
+  thinking.id = 'coach-thinking-' + Date.now();
+  thinking.className = 'msg coach';
+  thinking.textContent = 'Cadence réfléchit…';
+  $('chatLog').appendChild(thinking);
+  $('chatLog').scrollTop = $('chatLog').scrollHeight;
+
+  try{
+    const response = await apiFetch('/api/chat', {
+      method:'POST',
+      body: JSON.stringify({
+        studentId: currentStudentId,
+        message: message
+      })
+    });
+
+    const data = await response.json();
+    thinking.remove();
+
+    if(!data.reply){
+      throw new Error(data.error || data.message || data.details || 'Le backend n’a pas renvoyé de réponse au coach.');
+    }
+    addBubble('coach', data.reply);
+  }catch(error){
+    thinking.remove();
+    console.error('CADENCE CHAT ERROR:', error);
+    const errorMessage = error?.message || 'Erreur inconnue du coach.';
+    addBubble('coach', 'Erreur du coach : ' + errorMessage);
+    showToast('Le coach n’a pas pu répondre.');
+  }finally{
+    button.disabled = false;
+    input.focus();
+  }
+}
+
+function askCoachAboutPlanning(){
+  showPageByName('home');
+  $('chatInput').value = 'Analyse mon planning et explique-moi ce que je devrais travailler aujourd’hui.';
+  sendMessage();
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+function showPage(page, button){
+  document.querySelectorAll('.page').forEach(section => section.classList.add('hidden'));
+  const selected = $('page-' + page);
+  if(selected){
+    selected.classList.remove('hidden');
+    selected.style.animation = 'none';
+    requestAnimationFrame(() => { selected.style.animation = ''; });
+  }
+
+  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+  if(button){
+    button.classList.add('active');
+  }else{
+    const nav = document.querySelector('.nav-item[data-page="' + page + '"]');
+    if(nav) nav.classList.add('active');
+  }
+
+  $('sidebar').classList.remove('open');
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function showPageByName(page){
+  const button = document.querySelector('.nav-item[data-page="' + page + '"]');
+  showPage(page, button);
+}
+
+/* =========================================================
+   SIDEBAR MOBILE + PROFIL
+========================================================= */
+function toggleSidebar(){
+  $('sidebar').classList.toggle('open');
+}
+
+function toggleProfile(){
+  $('profile').classList.toggle('open');
+}
+
+document.addEventListener('click', function(event){
+  const profile = $('profile');
+  if(profile && !profile.contains(event.target)){
+    profile.classList.remove('open');
+  }
+});
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+async function logout(){
+  try{
+    if(accessToken){
+      await fetch(SUPABASE_URL + '/auth/v1/logout', {
+        method:'POST',
+        headers:{
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + accessToken
+        }
+      });
+    }
+  }catch(error){
+    console.warn('Logout:', error);
+  }
+
+  clearSession();
+  accessToken = null;
+  currentUserId = null;
+  currentStudentId = null;
+  location.reload();
+}
+
+/* =========================================================
+   KEYBOARD + INIT
+========================================================= */
+document.addEventListener('DOMContentLoaded', function(){
+  $('chatInput').addEventListener('keydown', function(event){
+    if(event.key === 'Enter' && !event.shiftKey){
+      event.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // Support clavier dans le modal QCM
+  document.addEventListener('keydown', function(e){
+    if($('qcmModal').style.display !== 'flex') return;
+
+    if(e.key === 'Escape'){
+      closeQCM();
+      return;
+    }
+
+    if(currentQCMAnswered && (e.key === 'Enter' || e.key === 'ArrowRight')){
+      nextQCMQuestion();
+      return;
+    }
+
+    // Touches 1-4 pour répondre
+    if(!currentQCMAnswered && ['1','2','3','4'].includes(e.key)){
+      const index = parseInt(e.key, 10) - 1;
+      const buttons = document.querySelectorAll('#qcmAnswers .qcm-answer');
+      if(buttons[index]) buttons[index].click();
+    }
+  });
+
+  restoreSession();
+});
+
+window.onerror = function(message, source, line){
+  console.error('Cadence JS error:', message, source, line);
+  return false;
+};
+</script>
+</body>
+</html>
