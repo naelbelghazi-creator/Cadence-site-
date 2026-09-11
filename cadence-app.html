@@ -459,8 +459,13 @@ button{cursor:pointer}
    QCM MODAL — COMPLET & POLI
 ========================================================= */
 .qcm-modal{
-  position:fixed;inset:0;z-index:800;
-  display:none;align-items:center;justify-content:center;padding:20px;
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
 }
 .qcm-modal-overlay{
   position:absolute;inset:0;background:rgba(20,23,26,.55);
@@ -1785,6 +1790,9 @@ function startQCM(index){
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
 
+  // Ferme le menu de gauche pour que le modal ne soit pas caché
+  $('sidebar').classList.remove('open');
+
   $('qcmModalMatiere').textContent = qcm.matiere || 'Médecine';
   $('qcmModalTitle').textContent = qcm.titre || qcm.title || 'QCM';
 
@@ -1947,15 +1955,19 @@ function restartCurrentQCM(){
 function sendErrorsToCoach(){
   if(!currentQCMWrongAnswers.length) return;
 
+  // On sauvegarde les erreurs AVANT de fermer le modal (sinon elles sont effacées)
+  const wrongAnswers = [...currentQCMWrongAnswers];
+  const errorCount = wrongAnswers.length;
+
   closeQCM();
   showPageByName('home');
 
-  const summary = currentQCMWrongAnswers
+  const summary = wrongAnswers
     .map((item, i) => `${i+1}. ${item.question}`)
     .join('\n');
 
   const message =
-    `J’ai terminé un QCM et j’ai fait ${currentQCMWrongAnswers.length} erreur(s). ` +
+    `J’ai terminé un QCM et j’ai fait ${errorCount} erreur(s). ` +
     `Voici les questions que j’ai ratées :\n${summary}\n\n` +
     `Peux-tu m’expliquer ces notions et me proposer un mini-plan de révision ?`;
 
